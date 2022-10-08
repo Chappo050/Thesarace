@@ -6,6 +6,8 @@ const gameController = require("../controllers/gameController");
 
 //GET//
 /* GET users listing. */
-router.get("/newSoloGame", gameController.newGame);
+router.get("/soloGame", gameController.newGame);
+
+// router.get("/fill", gameController.fillData);
 
 module.exports = router;
