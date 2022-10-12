@@ -10,4 +10,6 @@ router.get("/soloGame", gameController.newGame);
 
 // router.get("/fill", gameController.fillData);
 
+// router.get("/clean", gameController.clean);
+
 module.exports = router;
