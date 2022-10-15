@@ -1051,7 +1051,7 @@ exports.newGame = (req, res, next) => {
   });
 };
 
-// Get a new random word with synonyms
+// Cleaning
 exports.clean = (req, res, next) => {
   synonyms.remove({ synonyms: { $size: 1 } }).exec((err) => {
     if (err) {
