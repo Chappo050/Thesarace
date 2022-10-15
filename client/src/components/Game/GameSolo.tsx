@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Nav from "../Nav";
+import CountdownTimer from "../CountdownTimer";
 
 const api = axios.create({
   baseURL: "/api",
@@ -29,6 +30,9 @@ function GameSolo() {
     guess: "",
   });
 
+  //initalize timer
+  const [timer, setTimer] = useState(30 * 1000 + new Date().getTime())
+
   useEffect(() => {
     api
       .get("/game/soloGame")
@@ -43,11 +47,16 @@ function GameSolo() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    //check if guess is correct
+    //check if guess is correct and hasnt already been guessed
     for (let i = 0; i < words[wordCount].synonyms.length; i++) {
       const element = words[wordCount].synonyms[i];
-      if (formValue.guess.trim() === element) {
-        setGuessedWords([formValue.guess, ...guessedWords])
+      if (formValue.guess.trim() === element && !guessedWords.includes(formValue.guess.trim())) {
+        //update scores and words
+        setGuessedWords([formValue.guess, ...guessedWords]);
+        setScore(score + 1);
+        setformValue({ guess: "" });
+        // add 2 seconds to the timer
+        setTimer(timer + 2* 1000)
       }
     }
   };
@@ -94,9 +103,8 @@ function GameSolo() {
         </div>
         <div className=" text-2xl pt-5">
           <p>Find as many synonyms as possible!</p>
-          <p className="p-5">Timer: 00</p>
+          <CountdownTimer time={timer} />
           <div>{words.map((word, key) => CurrentWord(word, guessedWords))}</div>
-
         </div>
         <i />
       </div>
