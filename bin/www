@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('profile-blog:server');
 var http = require('http');
 
+
 /**
  * Get port from environment and store in Express.
  */
@@ -20,6 +21,35 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+const io = require('socket.io')(server, {
+  cors: {origin: "*"}
+})
+
+//websocket stuff
+
+//Rooms available
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('joinroom', function(room, username) {
+    socket.username = username;
+    socket.room = room
+    socket.join(room)
+
+    socket.emit('updatechat', 'SERVER', 'you have connected to room1');
+
+    socket.broadcast.to('room1').emit('update', 'SERVER', username + ' has connected to this room');
+  } )
+
+  socket.on('sendguess', function (data) {
+		// we tell the client to execute 'updatechat' with 2 parameters
+		io.sockets.in(socket.room).emit('update', socket.username, data);
+	});
+
+
+})
+
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -28,6 +58,8 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+
 
 /**
  * Normalize a port into a number, string, or false.

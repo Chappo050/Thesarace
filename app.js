@@ -23,6 +23,9 @@ const helmet = require("helmet"); //Protection
 const initilizePassport = require("./passport_config");
 const MongoStore = require("connect-mongo");
 
+// Web socket
+
+
 //Route imports
 var indexRouter = require("./routes/index");
 var userRouter = require("./routes/user");
@@ -40,6 +43,7 @@ mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
 
 //Middleware
 app.use(cors({ origin: "URL ALLOWED", credentials: true }));

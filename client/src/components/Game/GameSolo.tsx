@@ -217,7 +217,8 @@ const CurrentWord = (word: Word, guessedWords: String[]) => {
   return (
     <div>
  
-
+ <div className="text-8xl">{word.word}</div>
+ 
       <div className="grid grid-cols-3 gap-3 pt-10 text-blue-800">
         {guessedWords.map((synonym, key) => (
           <i>{synonym}</i>

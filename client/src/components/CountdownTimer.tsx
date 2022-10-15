@@ -26,7 +26,9 @@ const CountdownTimer = forwardRef(({ time , timerRef}: any) => {
 const ShowCounter = ({ days, hours, minutes, seconds }: any) => {
   return (
     <div className="show-counter">
-      <DateTimeDisplay value={seconds} type={"Seconds"} />
+       <DateTimeDisplay value={minutes} />
+       <i>:</i>
+      <DateTimeDisplay value={seconds}/>
     </div>
   );
 };
