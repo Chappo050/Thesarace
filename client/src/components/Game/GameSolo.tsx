@@ -216,12 +216,7 @@ const NextWordButton = ({ fetchWord }: any) => {
 const CurrentWord = (word: Word, guessedWords: String[]) => {
   return (
     <div>
-      <div className="text-8xl">{word.word}</div>
-      <div className="grid grid-cols-3 gap-3 pt-10">
-        {word.synonyms.map((synonym, key) => (
-          <i>{synonym}</i>
-        ))}
-      </div>
+ 
 
       <div className="grid grid-cols-3 gap-3 pt-10 text-blue-800">
         {guessedWords.map((synonym, key) => (
@@ -232,4 +227,17 @@ const CurrentWord = (word: Word, guessedWords: String[]) => {
   );
 };
 
+//only needewd for testing
+const wordliststuff = (word: Word, guessedWords: String[]) => {
+  return (
+    <div>
+  <div className="text-8xl">{word.word}</div>
+  <div className="grid grid-cols-3 gap-3 pt-10">
+    {word.synonyms.map((synonym, key) => (
+      <i>{synonym}</i>
+    ))}
+  </div>
+  </div>
+  )
+}
 export default GameSolo;
