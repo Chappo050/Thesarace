@@ -46,6 +46,13 @@ io.on("connection", (socket) => {
        socket.broadcast
        .to(roomName)
        .emit("update", "User connected to your room");
+
+       //send game start message
+       socket.emit('start')
+       //sends to all clients in said room
+       socket.broadcast
+       .to(roomName)
+       .emit("start");
     }
    else {
     socket.emit("full", "full");

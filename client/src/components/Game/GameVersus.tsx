@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import Nav from "../Nav";
-import CountdownTimer from "../CountdownTimer";
 import io from "socket.io-client";
 const socket = io("ws://localhost:5000");
 
@@ -18,9 +17,7 @@ interface Word {
 
 const defaultWords: Word[] = [];
 
-function GameSolo() {
-  const timerRef = useRef<HTMLBodyElement>(null);
-
+function GameVersus() {
   const [words, setWords]: [Word[], (words: Word[]) => void] =
     useState(defaultWords);
 
@@ -38,29 +35,59 @@ function GameSolo() {
     guess: "",
   });
 
-  const [onCooldown, setOnCooldown] = useState(false);
-
   const [gameOver, setGameOver] = useState(false);
-
-  //initalize timer
-  const [timer, setTimer] = useState(1200 * 1000 + new Date().getTime());
 
   const [gameData, setGameData] = useState({});
 
   const [roomID, setRoomID] = useState("");
 
   const [inRoom, setInRoom] = useState(false);
-  //When time is up remove words and next words and display final score
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      if (timerRef.current?.innerText == "0") {
-        setGameOver(true);
-        console.log("meow");
-      }
-    }, 200);
 
-    return () => window.clearInterval(interval);
-  }, []);
+  const [seconds, setSeconds] = useState(15);
+
+  const [secondsPrep, setSecondsPrep] = useState(5);
+
+  const [gameStart, setGameStart] = useState(false);
+
+  const [gameReady, setGameReady] = useState(false);
+
+  //When time is up remove words and next words and display final score
+
+  //Word Change interval
+  useEffect(() => {
+    if (gameStart) {
+      const interval = setInterval(() => {
+        setSeconds((seconds) => seconds - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [gameStart]);
+
+  //Game starting prep time
+  useEffect(() => {
+    if (gameReady) {
+      const interval = setInterval(() => {
+        setSecondsPrep((secondsPrep) => secondsPrep - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+
+  }, [gameReady]);
+
+  useEffect(() => {
+    if (secondsPrep <= 0) {
+   
+      setGameStart(true);
+    }
+  }, [secondsPrep]);
+
+
+  useEffect(() => {
+    if (seconds <= 0) {
+      fetchWord();
+      setSeconds(10);
+    }
+  }, [seconds]);
 
   useEffect(() => {
     api
@@ -79,18 +106,15 @@ function GameSolo() {
   }, [words]);
 
   const fetchWord = async () => {
-    if (!onCooldown) {
-      newWordTimer();
-      api
-        .get("/game/soloGame")
-        .then((response) => {
-          setWords(response.data);
-          console.log(response.data);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
+    api
+      .get("/game/soloGame")
+      .then((response) => {
+        setWords(response.data);
+        console.log(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const refreshPage = () => {
@@ -110,18 +134,8 @@ function GameSolo() {
         setGuessedWords([formValue.guess, ...guessedWords]);
         setScore(score + 1);
         setformValue({ guess: "" });
-        // add 2 seconds to the timer
-        setTimer(timer + 2 * 1000);
       }
     }
-  };
-
-  //handles cooldown for new word requests
-  const newWordTimer = () => {
-    setOnCooldown(true);
-    setTimeout(() => {
-      setOnCooldown(false);
-    }, 1000);
   };
 
   const handleChange = (event: any) => {
@@ -155,6 +169,10 @@ function GameSolo() {
       console.log("Opponent is writing: " + data);
       setformValueOpp({ guess: data });
     });
+
+    socket.on("start", () => {
+      setGameReady(true)
+    });
   }, []);
 
   useEffect(() => {
@@ -167,16 +185,17 @@ function GameSolo() {
     socket.on("full", (arg1) => {
       console.log("data recieved: " + arg1);
 
-      refreshPage()
-      alert('Room is full, please try another room')
+      refreshPage();
+      alert("Room is full, please try another room");
     });
   }, []);
 
+  ///PAGE STUFF///
   return (
     <div>
       <Nav />
-      {!inRoom ? (
-        <JoinScreen joinFunc={joinRoom} />
+      {!inRoom || !gameStart ? (
+        <JoinScreen joinFunc={joinRoom} gameReady={gameReady} inRoom={inRoom} />
       ) : (
         <div className="grid grid-cols-3 text-center">
           <div className="pt-36  text-5xl">
@@ -215,7 +234,7 @@ function GameSolo() {
           </div>
           <div className=" text-2xl pt-5">
             <p>Find as many synonyms as possible!</p>
-            <CountdownTimer time={timer} timerRef={timerRef} start={inRoom} />
+            <p>{seconds}</p>
             <div>
               {words.map((word, key) => CurrentWord(word, guessedWords))}
             </div>
@@ -262,18 +281,29 @@ const OpponentsSide = ({ val }: any) => {
   );
 };
 
-const JoinScreen = ({ joinFunc }: any) => {
+const JoinScreen = ({ joinFunc, gameReady, inRoom }: any) => {
   return (
-    <div className="text-center">
-      <button
-        className="bg-teal-200 p-5 m-10 border border-black  hover:bg-teal-400 text-center"
-        onClick={() => {
-          joinFunc();
-        }}
-      >
-        Join room
-      </button>
-    </div>
+    <>
+      {!gameReady ? (
+        <div className="text-center">
+          {!inRoom ?<button
+            className="bg-teal-200 p-5 m-10 border border-black  hover:bg-teal-400 text-center"
+            onClick={() => {
+              joinFunc();
+            }}
+          >
+            Join room
+          </button> : <div>
+            Waiting for a friend to join...
+            </div>}
+          
+        </div>
+      ) : (
+        <div className="text-center">
+        Get Ready! Game starting in 5 seconds!!!!
+      </div>
+      )}
+    </>
   );
 };
 
@@ -304,4 +334,4 @@ const wordliststuff = (word: Word, guessedWords: String[]) => {
     </div>
   );
 };
-export default GameSolo;
+export default GameVersus;
