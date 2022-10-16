@@ -1044,6 +1044,7 @@ exports.newGame = (req, res, next) => {
       return next(err);
     }
     if (word) {
+      console.log(word);
       res.status(200).json(word);
     } else {
       res.status(200).json({ message: "No word found" });
@@ -1051,19 +1052,6 @@ exports.newGame = (req, res, next) => {
   });
 };
 
-// Get a new random word list for versus
-exports.newGameVersus = (req, res, next) => {
-  synonyms.aggregate([{ $sample: { size: 50 } }]).exec((err, word) => {
-    if (err) {
-      return next(err);
-    }
-    if (word) {
-      res.status(200).json(word);
-    } else {
-      res.status(200).json({ message: "No word found" });
-    }
-  });
-};
 
 // Cleaning
 exports.clean = (req, res, next) => {

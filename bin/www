@@ -74,6 +74,11 @@ io.on("connection", (socket) => {
     // we tell the client to execute 'updatechat' with 2 parameters
     socket.broadcast.to(room).emit("newWord", data);
   });
+
+  socket.on("correctGuess", function (words, room) {
+    // we tell the client to execute 'updatechat' with 2 parameters
+    socket.broadcast.to(room).emit("correctGuess", words);
+  });
 });
 
 

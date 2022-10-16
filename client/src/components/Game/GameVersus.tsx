@@ -35,7 +35,7 @@ function GameVersus() {
 
   const [gameOver, setGameOver] = useState(false);
 
-  const [gameData, setGameData] = useState({});
+  const [playerHealth, setPlayerHealth] = useState(3)
 
   const [roomID, setRoomID] = useState("");
 
@@ -125,6 +125,7 @@ function GameVersus() {
         !guessedWords.includes(formValue.guess.trim())
       ) {
         //update life here
+        socket.emit("correctGuess", guessedWords, roomID)
         setGuessedWords([formValue.guess, ...guessedWords]);
         setformValue({ guess: "" });
       }
@@ -184,8 +185,21 @@ function GameVersus() {
       });
     }
 
+    socket.on("correctGuess", (words) => {
+
+      setPlayerHealth(playerHealth - 1)
+      console.log(words);
+      
+        setGuessedWords([...guessedWords, words])
+        console.log("Playres health is now" + playerHealth);
+    });
+
   }, []);
 
+  useEffect(()=> {
+console.log(playerHealth);
+
+  },[playerHealth])
   //send new word to friend
   useEffect(() => {
     if (isHost) {

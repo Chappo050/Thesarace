@@ -8,7 +8,6 @@ const gameController = require("../controllers/gameController");
 /* GET users listing. */
 router.get("/soloGame", gameController.newGame);
 
-router.get("/versusGame", gameController.newGameVersus);
 
 // router.get("/fill", gameController.fillData);
 
