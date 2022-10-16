@@ -25,8 +25,6 @@ function GameVersus() {
 
   const [guessedWords, setGuessedWords] = useState([""]);
 
-  const [score, setScore] = useState(0);
-
   const [formValue, setformValue] = useState({
     guess: "",
   });
@@ -43,15 +41,16 @@ function GameVersus() {
 
   const [inRoom, setInRoom] = useState(false);
 
-  const [seconds, setSeconds] = useState(15);
+  //determine who is the host of the session, all words are pulled from the host
+  const [isHost, setIsHost] = useState(false);
+
+  const [seconds, setSeconds] = useState(10);
 
   const [secondsPrep, setSecondsPrep] = useState(5);
 
   const [gameStart, setGameStart] = useState(false);
 
   const [gameReady, setGameReady] = useState(false);
-
-  //When time is up remove words and next words and display final score
 
   //Word Change interval
   useEffect(() => {
@@ -65,56 +64,50 @@ function GameVersus() {
 
   //Game starting prep time
   useEffect(() => {
-    if (gameReady) {
+    if (gameReady && seconds== 10) {
       const interval = setInterval(() => {
         setSecondsPrep((secondsPrep) => secondsPrep - 1);
       }, 1000);
       return () => clearInterval(interval);
     }
-
-  }, [gameReady]);
+  }, [gameReady, seconds]);
 
   useEffect(() => {
     if (secondsPrep <= 0) {
-   
       setGameStart(true);
     }
   }, [secondsPrep]);
 
-
+  //refresh timer, also only the host will fetch the word
   useEffect(() => {
-    if (seconds <= 0) {
+    if (seconds <= 0 && isHost) {
+      //race condition here?
       fetchWord();
-      setSeconds(10);
     }
   }, [seconds]);
 
   useEffect(() => {
-    api
-      .get("/game/soloGame")
-      .then((response) => {
-        setWords(response.data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
+    fetchWord();
+  }, [gameStart]);
 
   //clear guesses on word change
   useEffect(() => {
     setGuessedWords([""]);
+    console.log("new word");
+    setSeconds(10)
   }, [words]);
 
   const fetchWord = async () => {
-    api
-      .get("/game/soloGame")
-      .then((response) => {
-        setWords(response.data);
-        console.log(response.data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    if (isHost) {
+      api
+        .get("/game/soloGame")
+        .then((response) => {
+          setWords(response.data);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
   };
 
   const refreshPage = () => {
@@ -123,6 +116,7 @@ function GameVersus() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    
     //check if guess is correct and hasnt already been guessed
     for (let i = 0; i < words[wordCount].synonyms.length; i++) {
       const element = words[wordCount].synonyms[i];
@@ -130,9 +124,8 @@ function GameVersus() {
         formValue.guess.trim() === element &&
         !guessedWords.includes(formValue.guess.trim())
       ) {
-        //update scores and words
+        //update life here
         setGuessedWords([formValue.guess, ...guessedWords]);
-        setScore(score + 1);
         setformValue({ guess: "" });
       }
     }
@@ -171,24 +164,34 @@ function GameVersus() {
     });
 
     socket.on("start", () => {
-      setGameReady(true)
+      setGameReady(true);
     });
-  }, []);
 
-  useEffect(() => {
-    socket.on("update", (arg1) => {
-      console.log("data recieved: " + arg1);
+    socket.on("create", (arg1) => {
+      setIsHost(true);
     });
-  }, []);
 
-  useEffect(() => {
     socket.on("full", (arg1) => {
       console.log("data recieved: " + arg1);
 
       refreshPage();
       alert("Room is full, please try another room");
     });
+
+    if (!isHost) {
+      socket.on("newWord", (data) => {
+        setWords(data);
+      });
+    }
+
   }, []);
+
+  //send new word to friend
+  useEffect(() => {
+    if (isHost) {
+      socket.emit("newWord", words, roomID);
+    }
+  }, [words]);
 
   ///PAGE STUFF///
   return (
@@ -229,7 +232,7 @@ function GameVersus() {
               </div>
             </form>
             <div>
-              <p className="text-3xl pt-24 font-extrabold">Score: {score}</p>
+              <p> ♥♥♥ put health here</p>
             </div>
           </div>
           <div className=" text-2xl pt-5">
@@ -252,7 +255,7 @@ function GameVersus() {
       ) : (
         <div className="grid grid-cols-1 text-center text-4xl">
           <div className=" font-extrabold underline underline-offset-2 pt-16">
-            Final Score is: {score}
+            Winner is: username!!!!
           </div>
           <button
             className="bg-teal-200 p-1 border border-black m-16 hover:bg-teal-400"
@@ -286,22 +289,23 @@ const JoinScreen = ({ joinFunc, gameReady, inRoom }: any) => {
     <>
       {!gameReady ? (
         <div className="text-center">
-          {!inRoom ?<button
-            className="bg-teal-200 p-5 m-10 border border-black  hover:bg-teal-400 text-center"
-            onClick={() => {
-              joinFunc();
-            }}
-          >
-            Join room
-          </button> : <div>
-            Waiting for a friend to join...
-            </div>}
-          
+          {!inRoom ? (
+            <button
+              className="bg-teal-200 p-5 m-10 border border-black  hover:bg-teal-400 text-center"
+              onClick={() => {
+                joinFunc();
+              }}
+            >
+              Join room
+            </button>
+          ) : (
+            <div>Waiting for a friend to join...</div>
+          )}
         </div>
       ) : (
         <div className="text-center">
-        Get Ready! Game starting in 5 seconds!!!!
-      </div>
+          Get Ready! Game starting in 5 seconds!!!!
+        </div>
       )}
     </>
   );

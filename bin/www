@@ -38,7 +38,7 @@ io.on("connection", (socket) => {
 
     if (room == undefined) {
       socket.join(roomName);
-      socket.emit('update', 'New room created')
+      socket.emit('create', 'New room created')
     } else if (room.size == 1){
       socket.join(roomName);
       socket.emit('update', 'Room Joined')
@@ -62,14 +62,21 @@ io.on("connection", (socket) => {
 
   socket.on("sendguess", function (data) {
     // we tell the client to execute 'updatechat' with 2 parameters
-    io.sockets.in(socket.room).emit("update", socket.username, data);
+    io.sockets.in(room).emit("update", socket.username, data);
   });
 
   socket.on("writing", function (data, room) {
     socket.broadcast.to(room).emit("writing", data);
     console.log(data);
   });
+
+  socket.on("newWord", function (data, room) {
+    // we tell the client to execute 'updatechat' with 2 parameters
+    socket.broadcast.to(room).emit("newWord", data);
+  });
 });
+
+
 
 /**
  * Listen on provided port, on all network interfaces.
