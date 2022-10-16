@@ -38,7 +38,7 @@ function GameSolo() {
 
   const [gameOver, setGameOver] = useState(false);
   //initalize timer
-  const [timer, setTimer] = useState(30 * 1000 + new Date().getTime());
+  const [timer, setTimer] = useState(120 * 1000 + new Date().getTime());
 
   //When time is up remove words and next words and display final score
   useEffect(() => {

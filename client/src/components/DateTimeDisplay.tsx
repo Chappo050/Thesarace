@@ -5,7 +5,6 @@ const DateTimeDisplay = ({ value, type} : any) => {
   return (
     <div >
       <p id="Timer" ref={myTimer}>{value}</p>
-      <span>{type}</span>
     </div>
   );
 };

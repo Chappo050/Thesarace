@@ -2,11 +2,8 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import Nav from "../Nav";
 import CountdownTimer from "../CountdownTimer";
-import { debounce } from "lodash";
-import { setInterval } from "timers/promises";
 import io from "socket.io-client";
 const socket = io("ws://localhost:5000");
-
 
 const api = axios.create({
   baseURL: "/api",
@@ -37,20 +34,22 @@ function GameSolo() {
     guess: "",
   });
 
+  const [formValueOpp, setformValueOpp] = useState({
+    guess: "",
+  });
+
   const [onCooldown, setOnCooldown] = useState(false);
 
   const [gameOver, setGameOver] = useState(false);
+
   //initalize timer
-  const [timer, setTimer] = useState(1000 * 1000 + new Date().getTime());
+  const [timer, setTimer] = useState(1200 * 1000 + new Date().getTime());
 
-  const [gameData, setGameData] = useState({})
+  const [gameData, setGameData] = useState({});
 
-  useEffect(() => {
-    socket.on("update", (data) => {
-      setGameData(data)
-    });
-  }, []);
+  const [roomID, setRoomID] = useState("");
 
+  const [inRoom, setInRoom] = useState(false);
   //When time is up remove words and next words and display final score
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -61,16 +60,6 @@ function GameSolo() {
     }, 200);
 
     return () => window.clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const handleKeyPress = (e: any) => {
-      if (e.key === "ArrowRight" && !onCooldown) {
-        newWordTimer();
-        debouncedAPICall();
-      }
-    };
-    window.addEventListener("keydown", handleKeyPress);
   }, []);
 
   useEffect(() => {
@@ -88,12 +77,6 @@ function GameSolo() {
   useEffect(() => {
     setGuessedWords([""]);
   }, [words]);
-
-  const debouncedAPICall = useRef(
-    debounce(async () => {
-      fetchWord();
-    }, 1000)
-  ).current;
 
   const fetchWord = async () => {
     if (!onCooldown) {
@@ -148,10 +131,53 @@ function GameSolo() {
     });
   };
 
+  ///SOCKET HANDELING///
+
+  const joinRoom = () => {
+    const room: any = prompt("Enter Rooom Name");
+    if (room === null) {
+      alert("Please enter a room name.");
+    } else {
+      setRoomID(room);
+      socket.emit("join", "Matthew", room);
+      setInRoom(true);
+    }
+  };
+
+  //send what oppenent is writing
+  useEffect(() => {
+    socket.emit("writing", formValue.guess, roomID);
+    console.log("sending " + formValue.guess);
+  }, [formValue]);
+
+  useEffect(() => {
+    socket.on("writing", (data) => {
+      console.log("Opponent is writing: " + data);
+      setformValueOpp({ guess: data });
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("update", (arg1) => {
+      console.log("data recieved: " + arg1);
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("full", (arg1) => {
+      console.log("data recieved: " + arg1);
+
+      refreshPage()
+      alert('Room is full, please try another room')
+    });
+  }, []);
+
   return (
     <div>
       <Nav />
-      {!gameOver ? (
+      {!inRoom ? (
+        <JoinScreen joinFunc={joinRoom} />
+      ) : (
         <div className="grid grid-cols-3 text-center">
           <div className="pt-36  text-5xl">
             <div>Player Name</div>
@@ -163,6 +189,7 @@ function GameSolo() {
               <div className="p-2 m-2 text">
                 <input
                   type="guess"
+                  maxLength={20}
                   name="guess"
                   placeholder="             Enter your guess here!"
                   value={formValue.guess}
@@ -184,15 +211,11 @@ function GameSolo() {
             </form>
             <div>
               <p className="text-3xl pt-24 font-extrabold">Score: {score}</p>
-              <br />
-              <br />
-              <br />
-              {!onCooldown ? <NextWordButton fetchWord={fetchWord} /> : <></>}
             </div>
           </div>
           <div className=" text-2xl pt-5">
             <p>Find as many synonyms as possible!</p>
-            <CountdownTimer time={timer} timerRef={timerRef} />
+            <CountdownTimer time={timer} timerRef={timerRef} start={inRoom} />
             <div>
               {words.map((word, key) => CurrentWord(word, guessedWords))}
             </div>
@@ -200,37 +223,65 @@ function GameSolo() {
             <br />
             <br />
           </div>
-          <button onClick={() => {socket.send('joinroom', 'room1')}}>Join room</button>
-          <i />
+          <div className="absolute right-5 top-1/3 text-3xl underline underline-offset-2 ">
+            <OpponentsSide val={formValueOpp.guess} />
+          </div>
         </div>
+      )}
+      {!gameOver ? (
+        <></>
       ) : (
         <div className="grid grid-cols-1 text-center text-4xl">
           <div className=" font-extrabold underline underline-offset-2 pt-16">
             Final Score is: {score}
           </div>
-          <button className="bg-teal-200 p-1 border border-black m-16 hover:bg-teal-400" onClick={refreshPage}>New Game</button>
+          <button
+            className="bg-teal-200 p-1 border border-black m-16 hover:bg-teal-400"
+            onClick={refreshPage}
+          >
+            New Game
+          </button>
         </div>
       )}
     </div>
   );
 }
 
-const NextWordButton = ({ fetchWord }: any) => {
+const OpponentsSide = ({ val }: any) => {
   return (
-    <button
-      onClick={() => fetchWord()}
-      className="bg-teal-200 p-1 border border-black text-2xl"
-    >
-      Next Word
-    </button>
+    <div className="p-2 m-2 float-right">
+      <input
+        type="opp"
+        name="opp"
+        placeholder="Placeholder text"
+        value={val}
+        disabled={true}
+        className="text-black p-0.5"
+      />
+    </div>
   );
 };
+
+const JoinScreen = ({ joinFunc }: any) => {
+  return (
+    <div className="text-center">
+      <button
+        className="bg-teal-200 p-5 m-10 border border-black  hover:bg-teal-400 text-center"
+        onClick={() => {
+          joinFunc();
+        }}
+      >
+        Join room
+      </button>
+    </div>
+  );
+};
+
 const CurrentWord = (word: Word, guessedWords: String[]) => {
   return (
     <div>
- 
- <div className="text-8xl">{word.word}</div>
- 
+      <div className="text-8xl">{word.word}</div>
+
       <div className="grid grid-cols-3 gap-3 pt-10 text-blue-800">
         {guessedWords.map((synonym, key) => (
           <i>{synonym}</i>
@@ -244,13 +295,13 @@ const CurrentWord = (word: Word, guessedWords: String[]) => {
 const wordliststuff = (word: Word, guessedWords: String[]) => {
   return (
     <div>
-  <div className="text-8xl">{word.word}</div>
-  <div className="grid grid-cols-3 gap-3 pt-10">
-    {word.synonyms.map((synonym, key) => (
-      <i>{synonym}</i>
-    ))}
-  </div>
-  </div>
-  )
-}
+      <div className="text-8xl">{word.word}</div>
+      <div className="grid grid-cols-3 gap-3 pt-10">
+        {word.synonyms.map((synonym, key) => (
+          <i>{synonym}</i>
+        ))}
+      </div>
+    </div>
+  );
+};
 export default GameSolo;
