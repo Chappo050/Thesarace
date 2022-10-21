@@ -9,17 +9,16 @@ function App() {
     <div>
       <Nav />
       <div className="text-whitefont-bold text-center m-10 text-2xl">
-        <div>WELCOME TO MY BLOG</div>
+        <div>Welcome to ThesauRACE. The fast pace thesauras race game.</div>
         <br />
         <br />
         <div>
-          Please take a look at what I have been up too or post something
-          yourself.
+          Quickly guess the synonym of the displayed word.
         </div>
         <br />
        
         <br />
-        To learn more this project check out the about tab.
+        Play <a className="underline hover:text-teal-500" href="/game/solo">solo</a> or <a className="underline hover:text-teal-500" href="/game/versus">versus</a> against someone!
       </div>
      
     </div>

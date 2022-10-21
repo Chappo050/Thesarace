@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import Nav from "../Nav";
 import io from "socket.io-client";
 const socket = io("ws://localhost:5000");
@@ -25,6 +25,8 @@ function GameVersus() {
 
   const [guessedWords, setGuessedWords] = useState([""]);
 
+  const [guessedWordsOpp, setGuessedWordsOpp] = useState([""]);
+
   const [formValue, setformValue] = useState({
     guess: "",
   });
@@ -35,7 +37,7 @@ function GameVersus() {
 
   const [gameOver, setGameOver] = useState(false);
 
-  const [playerHealth, setPlayerHealth] = useState(3)
+  const [playerHealth, setPlayerHealth] = useState(3);
 
   const [roomID, setRoomID] = useState("");
 
@@ -64,7 +66,7 @@ function GameVersus() {
 
   //Game starting prep time
   useEffect(() => {
-    if (gameReady && seconds== 10) {
+    if (gameReady && seconds == 10) {
       const interval = setInterval(() => {
         setSecondsPrep((secondsPrep) => secondsPrep - 1);
       }, 1000);
@@ -94,7 +96,7 @@ function GameVersus() {
   useEffect(() => {
     setGuessedWords([""]);
     console.log("new word");
-    setSeconds(10)
+    setSeconds(10);
   }, [words]);
 
   const fetchWord = async () => {
@@ -116,7 +118,7 @@ function GameVersus() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    
+
     //check if guess is correct and hasnt already been guessed
     for (let i = 0; i < words[wordCount].synonyms.length; i++) {
       const element = words[wordCount].synonyms[i];
@@ -125,7 +127,7 @@ function GameVersus() {
         !guessedWords.includes(formValue.guess.trim())
       ) {
         //update life here
-        socket.emit("correctGuess", guessedWords, roomID)
+        socket.emit("correctGuess", formValue.guess, roomID);
         setGuessedWords([formValue.guess, ...guessedWords]);
         setformValue({ guess: "" });
       }
@@ -185,21 +187,18 @@ function GameVersus() {
       });
     }
 
-    socket.on("correctGuess", (words) => {
-
-      setPlayerHealth(playerHealth - 1)
-      console.log(words);
-      
-        setGuessedWords([...guessedWords, words])
-        console.log("Playres health is now" + playerHealth);
+    socket.on("correctGuess", (word) => {
+      setPlayerHealth((playerHealth) => playerHealth - 1);
+      setGuessedWordsOpp((guessedWordsOpp) => [word, ...guessedWordsOpp] )
+      console.log("Playres health is now" + playerHealth);
+      socket.off("correctGuess")
     });
-
   }, []);
 
-  useEffect(()=> {
-console.log(playerHealth);
+  useEffect(() => {
+    console.log(playerHealth);
+  }, [playerHealth]);
 
-  },[playerHealth])
   //send new word to friend
   useEffect(() => {
     if (isHost) {
@@ -260,7 +259,7 @@ console.log(playerHealth);
             <br />
           </div>
           <div className="absolute right-5 top-1/3 text-3xl underline underline-offset-2 ">
-            <OpponentsSide val={formValueOpp.guess} />
+            {OpponentsSide(formValueOpp.guess, guessedWordsOpp)}
           </div>
         </div>
       )}
@@ -283,17 +282,24 @@ console.log(playerHealth);
   );
 }
 
-const OpponentsSide = ({ val }: any) => {
+const OpponentsSide = (word: any, guessedWords: String[]) => {
   return (
+    <div>
     <div className="p-2 m-2 float-right">
       <input
         type="opp"
         name="opp"
         placeholder="Placeholder text"
-        value={val}
+        value={word}
         disabled={true}
         className="text-black p-0.5"
       />
+    </div>
+    <div className="grid grid-cols-3 gap-3 pt-10 text-blue-800">
+        {guessedWords.map((synonym, key) => (
+          <i>{synonym}</i>
+        ))}
+      </div>
     </div>
   );
 };

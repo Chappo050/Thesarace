@@ -61,7 +61,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendguess", function (data) {
-    // we tell the client to execute 'updatechat' with 2 parameters
     io.sockets.in(room).emit("update", socket.username, data);
   });
 
@@ -71,13 +70,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("newWord", function (data, room) {
-    // we tell the client to execute 'updatechat' with 2 parameters
     socket.broadcast.to(room).emit("newWord", data);
   });
 
-  socket.on("correctGuess", function (words, room) {
-    // we tell the client to execute 'updatechat' with 2 parameters
-    socket.broadcast.to(room).emit("correctGuess", words);
+  socket.on("correctGuess", function (word, room) {
+    socket.broadcast.to(room).emit("correctGuess", word);
   });
 });
 
