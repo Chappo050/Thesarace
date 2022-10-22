@@ -64,7 +64,7 @@ function GameSolo() {
 
   useEffect(() => {
     api
-      .get("/game/soloGame")
+      .get("/game/new")
       .then((response) => {
         setWords(response.data);
       })

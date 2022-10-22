@@ -5,9 +5,10 @@ var router = express.Router();
 const gameController = require("../controllers/gameController");
 
 //GET//
-/* GET users listing. */
-router.get("/soloGame", gameController.newGame);
+//Start a new game (solo and versus)
+router.get("/new", gameController.newGame);
 
+router.get("/user", gameController.userDetails);
 
 // router.get("/fill", gameController.fillData);
 

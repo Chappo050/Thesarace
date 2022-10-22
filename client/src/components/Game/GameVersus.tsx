@@ -4,8 +4,6 @@ import Nav from "../Nav";
 import io from "socket.io-client";
 import { FaHeartbeat } from "react-icons/fa";
 import User from "../User/User";
-import { map } from "lodash";
-import { IconType } from "react-icons/lib";
 const socket = io("ws://localhost:5000");
 
 const api = axios.create({
@@ -17,6 +15,11 @@ interface Word {
   _id: String;
   word: String;
   synonyms: [String];
+}
+
+interface PlayerDetails {
+  username: String;
+  guest: boolean;
 }
 
 const defaultWords: Word[] = [];
@@ -42,6 +45,16 @@ function GameVersus() {
   const [gameOver, setGameOver] = useState(false);
 
   const [gameWin, setGameWin] = useState(false);
+
+  const [playerName, setPlayerName] = useState<PlayerDetails>({
+    username: "",
+    guest: true,
+  });
+
+  const [playerNameOpp, setPlayerNameOpp] = useState<PlayerDetails>({
+    username: "",
+    guest: true,
+  });
 
   const [playerHealth, setPlayerHealth] = useState(3);
 
@@ -97,6 +110,7 @@ function GameVersus() {
 
   useEffect(() => {
     fetchWord();
+    fetchUserDetails();
   }, [gameStart]);
 
   //clear guesses on word change
@@ -108,7 +122,7 @@ function GameVersus() {
   const fetchWord = async () => {
     if (isHost) {
       api
-        .get("/game/soloGame")
+        .get("/game/new")
         .then((response) => {
           setWords(response.data);
           setGuessedWordsOpp([]);
@@ -117,6 +131,18 @@ function GameVersus() {
           console.error(err);
         });
     }
+  };
+
+  const fetchUserDetails = async () => {
+    api
+      .get("/game/user")
+      .then((response) => {
+        setPlayerName(response.data);
+        console.log(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const refreshPage = () => {
@@ -168,6 +194,7 @@ function GameVersus() {
   //send what oppenent is writing
   useEffect(() => {
     socket.emit("writing", formValue.guess, roomID);
+
   }, [formValue]);
 
   useEffect(() => {
@@ -205,6 +232,11 @@ function GameVersus() {
     });
 
     //other player lost
+    socket.on("userDetails", (details) => {
+      setPlayerNameOpp(details);
+    });
+
+    //other player lost
     socket.on("gameOver", () => {
       setGameWin(true);
       handleGameOver();
@@ -226,6 +258,10 @@ function GameVersus() {
     }
   }, [words]);
 
+
+  useEffect(()=> {
+    socket.emit("userDetails", playerName, roomID);
+  }, [playerName])
   const handleGameOver = () => {
     setGameOver(true);
     setInRoom(false);
@@ -247,9 +283,16 @@ function GameVersus() {
             />
           ) : (
             <div className="grid grid-cols-3 text-center">
-              <div className=" left-5 pt-72  text-4xl underline underline-offset-2 ">
+              <div className=" left-5 pt-72  text-4xl">
                 <div className="grid grid-cols-1 gap-10 text-4xl">
-                  <div>Player Name</div>
+                  {playerName.guest ? (
+                    <div className="italic text-3xl">
+                      {" "}
+                      {playerName.username}{" "}
+                    </div>
+                  ) : (
+                    <div className="underline underline-offset-2"> {playerName.username} </div>
+                  )}
                   <form
                     onSubmit={handleSubmit}
                     className="text-black text-center p-4 text-3xl"
@@ -291,14 +334,16 @@ function GameVersus() {
                 <p>Find as many synonyms as possible!</p>
                 <p>{seconds}</p>
                 <div>
-                  {words.map((word, key) => CurrentWord(word, guessedWords, guessedWordsOpp))}
+                  {words.map((word, key) =>
+                    CurrentWord(word, guessedWords, guessedWordsOpp)
+                  )}
                 </div>
                 <br />
                 <br />
                 <br />
               </div>
               <div className="absolute right-5 pt-72  text-4xl underline underline-offset-2 ">
-                {OpponentsSide(formValueOpp.guess)}
+                {OpponentsSide(formValueOpp.guess, playerNameOpp)}
                 {playerHealth > 0 ? (
                   <PlayerHealth
                     health={playerHealthOpp}
@@ -338,10 +383,14 @@ const PlayerHealth = ({ health, Heart }: any) => {
   );
 };
 
-const OpponentsSide = (word: any) => {
+const OpponentsSide = (word: any, player: PlayerDetails) => {
   return (
     <div className="grid grid-cols-1 gap-10">
-      <div>Opponent Name</div>
+      {player.guest ? (
+        <div className="italic text-3xl"> {player.username} </div>
+      ) : (
+        <div className="underline"> {player.username} </div>
+      )}
       <div className=" p-2 m-2">
         <input
           type="opp"
