@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useReducer, useRef, useState } from "react";
 import Nav from "../Nav";
 import io from "socket.io-client";
+import User from "../User/User";
 const socket = io("ws://localhost:5000");
 
 const api = axios.create({
@@ -36,6 +37,8 @@ function GameVersus() {
   });
 
   const [gameOver, setGameOver] = useState(false);
+
+  const [gameWin, setGameWin] = useState(false);
 
   const [playerHealth, setPlayerHealth] = useState(3);
 
@@ -82,8 +85,7 @@ function GameVersus() {
 
   //refresh timer, also only the host will fetch the word
   useEffect(() => {
-    if (seconds <= 0 && isHost) {
-      //race condition here?
+    if (seconds <= 0 && isHost && !gameOver) {
       fetchWord();
     }
   }, [seconds]);
@@ -95,7 +97,6 @@ function GameVersus() {
   //clear guesses on word change
   useEffect(() => {
     setGuessedWords([""]);
-    console.log("new word");
     setSeconds(10);
   }, [words]);
 
@@ -105,6 +106,7 @@ function GameVersus() {
         .get("/game/soloGame")
         .then((response) => {
           setWords(response.data);
+          setGuessedWordsOpp([]);
         })
         .catch((err) => {
           console.error(err);
@@ -124,12 +126,15 @@ function GameVersus() {
       const element = words[wordCount].synonyms[i];
       if (
         formValue.guess.trim() === element &&
-        !guessedWords.includes(formValue.guess.trim())
+        !guessedWords.includes(formValue.guess.trim()) &&
+        !guessedWordsOpp.includes(formValue.guess.trim())
       ) {
         //update life here
         socket.emit("correctGuess", formValue.guess, roomID);
         setGuessedWords([formValue.guess, ...guessedWords]);
         setformValue({ guess: "" });
+      } else if (guessedWordsOpp.includes(formValue.guess.trim())) {
+        //add display for when you guess the same word as an opponent
       }
     }
   };
@@ -157,7 +162,6 @@ function GameVersus() {
   //send what oppenent is writing
   useEffect(() => {
     socket.emit("writing", formValue.guess, roomID);
-    console.log("sending " + formValue.guess);
   }, [formValue]);
 
   useEffect(() => {
@@ -184,19 +188,29 @@ function GameVersus() {
     if (!isHost) {
       socket.on("newWord", (data) => {
         setWords(data);
+        setGuessedWordsOpp([]);
       });
     }
 
     socket.on("correctGuess", (word) => {
       setPlayerHealth((playerHealth) => playerHealth - 1);
-      setGuessedWordsOpp((guessedWordsOpp) => [word, ...guessedWordsOpp] )
+      setGuessedWordsOpp((guessedWordsOpp) => [word, ...guessedWordsOpp]);
       console.log("Playres health is now" + playerHealth);
-      socket.off("correctGuess")
+    });
+
+    //other player lost
+    socket.on("gameOver", () => {
+      setGameWin(true);
+      handleGameOver();
     });
   }, []);
 
+  //This player dies
   useEffect(() => {
-    console.log(playerHealth);
+    if (playerHealth <= 0) {
+      socket.emit("gameOver", roomID);
+      handleGameOver();
+    }
   }, [playerHealth]);
 
   //send new word to friend
@@ -206,12 +220,25 @@ function GameVersus() {
     }
   }, [words]);
 
+  
+  const handleGameOver = () => {
+    setGameOver(true);
+    setInRoom(false);
+    socket.disconnect();
+  };
+
   ///PAGE STUFF///
   return (
     <div>
       <Nav />
+      {!gameOver ? <>
       {!inRoom || !gameStart ? (
-        <JoinScreen joinFunc={joinRoom} gameReady={gameReady} inRoom={inRoom} />
+        <JoinScreen
+          joinFunc={joinRoom}
+          gameReady={gameReady}
+          inRoom={inRoom}
+          gameOver={gameOver}
+        />
       ) : (
         <div className="grid grid-cols-3 text-center">
           <div className="pt-36  text-5xl">
@@ -263,12 +290,11 @@ function GameVersus() {
           </div>
         </div>
       )}
-      {!gameOver ? (
-        <></>
-      ) : (
+      </>
+    : (
         <div className="grid grid-cols-1 text-center text-4xl">
           <div className=" font-extrabold underline underline-offset-2 pt-16">
-            Winner is: username!!!!
+            {gameWin ? <p>You are the WINNER!</p> : <p>You are the LOSER!</p>}
           </div>
           <button
             className="bg-teal-200 p-1 border border-black m-16 hover:bg-teal-400"
@@ -285,17 +311,17 @@ function GameVersus() {
 const OpponentsSide = (word: any, guessedWords: String[]) => {
   return (
     <div>
-    <div className="p-2 m-2 float-right">
-      <input
-        type="opp"
-        name="opp"
-        placeholder="Placeholder text"
-        value={word}
-        disabled={true}
-        className="text-black p-0.5"
-      />
-    </div>
-    <div className="grid grid-cols-3 gap-3 pt-10 text-blue-800">
+      <div className="p-2 m-2 float-right">
+        <input
+          type="opp"
+          name="opp"
+          placeholder="Placeholder text"
+          value={word}
+          disabled={true}
+          className="text-black p-0.5"
+        />
+      </div>
+      <div className="grid grid-cols-3 gap-3 pt-10 text-blue-800">
         {guessedWords.map((synonym, key) => (
           <i>{synonym}</i>
         ))}

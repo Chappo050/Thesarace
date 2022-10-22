@@ -76,6 +76,10 @@ io.on("connection", (socket) => {
   socket.on("correctGuess", function (word, room) {
     socket.broadcast.to(room).emit("correctGuess", word);
   });
+
+  socket.on("gameOver", function (room) {
+    socket.broadcast.to(room).emit("gameOver");
+  });
 });
 
 
