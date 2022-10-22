@@ -342,7 +342,7 @@ function GameVersus() {
                 <br />
                 <br />
               </div>
-              <div className="absolute right-5 pt-72  text-4xl underline underline-offset-2 ">
+              <div className="absolute right-5 pt-72  text-4xl ">
                 {OpponentsSide(formValueOpp.guess, playerNameOpp)}
                 {playerHealth > 0 ? (
                   <PlayerHealth
@@ -387,7 +387,7 @@ const OpponentsSide = (word: any, player: PlayerDetails) => {
   return (
     <div className="grid grid-cols-1 gap-10">
       {player.guest ? (
-        <div className="italic text-3xl"> {player.username} </div>
+        <div className="italic text-3xl no-underline"> {player.username} </div>
       ) : (
         <div className="underline"> {player.username} </div>
       )}
