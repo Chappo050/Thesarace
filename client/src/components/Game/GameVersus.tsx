@@ -405,7 +405,7 @@ const OpponentsSide = (word: any, player: PlayerDetails) => {
   );
 };
 
-const JoinScreen = ({ joinFunc, gameReady, inRoom }: any) => {
+const JoinScreen = ({ joinFunc , gameReady, inRoom }: any) => {
   return (
     <>
       {!gameReady ? (

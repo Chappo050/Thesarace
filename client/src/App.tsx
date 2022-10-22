@@ -18,7 +18,7 @@ function App() {
         <br />
        
         <br />
-        Play <a className="underline hover:text-teal-500" href="/game/solo">solo</a> or <a className="underline hover:text-teal-500" href="/game/versus">versus</a> against someone!
+        Play <a className="underline hover:text-teal-500" href="/solo">solo</a> or <a className="underline hover:text-teal-500" href="/versus">versus</a> against someone!
       </div>
      
     </div>

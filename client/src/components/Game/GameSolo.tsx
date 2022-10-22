@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import Nav from "../Nav";
 import CountdownTimer from "../CountdownTimer";
 import { debounce } from "lodash";
-import { setInterval } from "timers/promises";
 
 const api = axios.create({
   baseURL: "/api",
@@ -45,7 +44,6 @@ function GameSolo() {
     const interval = window.setInterval(() => {
       if (timerRef.current?.innerText == "0") {
         setGameOver(true);
-        console.log("meow");
       }
     }, 200);
 
@@ -88,10 +86,9 @@ function GameSolo() {
     if (!onCooldown) {
       newWordTimer();
       api
-        .get("/game/soloGame")
+        .get("/game/new")
         .then((response) => {
           setWords(response.data);
-          console.log(response.data);
         })
         .catch((err) => {
           console.error(err);
@@ -181,7 +178,7 @@ function GameSolo() {
           </div>
           <div className=" text-2xl pt-5">
             <p>Find as many synonyms as possible!</p>
-            <CountdownTimer time={timer} timerRef={timerRef} />
+            <CountdownTimer time={timer} timerRef={timerRef} start={true} />
             <div>
               {words.map((word, key) => CurrentWord(word, guessedWords))}
             </div>
