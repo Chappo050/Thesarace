@@ -59,11 +59,13 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+/*
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
-connectSrc: ["'self'", "wss://lit-woodland-54631.herokuapp.com"]
+connectSrc: ["'self'", "ws:"]
 
 }))
+*/
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
