@@ -293,12 +293,12 @@ function GameVersus() {
               <div className=" left-5 pt-72  text-4xl ">
                 <div className="grid grid-cols-1 gap-10 text-4xl ">
                   {playerName.guest ? (
-                    <div className="italic md:text-2xl lg:text-3xl text-md">
+                    <div className="italic md:text-2xl lg:text-3xl text-sm">
                       {" "}
                       {playerName.username}{" "}
                     </div>
                   ) : (
-                    <div className="underline underline-offset-2 md:text-2xl lg:text-3xl text-md"> {playerName.username} </div>
+                    <div className="underline underline-offset-2 md:text-2xl lg:text-3xl text-sm"> {playerName.username} </div>
                   )}
                   <form
                     onSubmit={handleSubmit}
@@ -314,12 +314,12 @@ function GameVersus() {
                         value={formValue.guess}
                         onChange={handleChange}
                         required
-                        className=" flex text-black p-0.5 w-full shadow-lg shadow-black text-center md:text-2xl sm:text-xl lg:text-3xl text-md"
+                        className=" flex text-black p-0.5 w-full shadow-lg shadow-black text-center md:text-2xl sm:text-xl lg:text-3xl text-sm"
                       />
 
                       <button
                         type="submit"
-                        className="bg-teal-200 p-1 mt-5 border border-black text-center md:text-xl sm:text-lg lg:text-2xl text-md"
+                        className="bg-teal-200 p-1 mt-5 border border-black text-center md:text-xl sm:text-lg lg:text-2xl text-sm"
                       >
                         Submit
                       </button>
@@ -395,7 +395,7 @@ const OpponentsSide = (word: any, player: PlayerDetails) => {
   return (
     <div className="grid grid-cols-1 gap-10">
       {player.guest ? (
-        <div className="italic  no-underline md:text-2xl sm:text-xl lg:text-3xl text-md pt-10"> {player.username} </div>
+        <div className="italic  no-underline md:text-2xl sm:text-xl lg:text-3xl text-sm pt-10"> {player.username} </div>
       ) : (
         <div className="underline md:text-2xl sm:text-xl lg:text-3xl text-xl mb-8"> {player.username} </div>
       )}
@@ -406,7 +406,7 @@ const OpponentsSide = (word: any, player: PlayerDetails) => {
           placeholder="....."
           value={word}
           disabled={true}
-          className="flex text-black p-0.5 w-full text-center md:text-2xl sm:text-xl lg:text-3xl text-md"
+          className="flex text-black p-0.5 w-full text-center md:text-2xl sm:text-xl lg:text-3xl text-sm"
         />
       </div>
     </div>
