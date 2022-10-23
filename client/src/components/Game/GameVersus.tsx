@@ -42,6 +42,8 @@ function GameVersus() {
     guess: "",
   });
 
+  const [opponentDisconnect, setOpponentDisconnect] = useState(false);
+
   const [gameOver, setGameOver] = useState(false);
 
   const [gameWin, setGameWin] = useState(false);
@@ -186,7 +188,7 @@ function GameVersus() {
       alert("Please enter a room name.");
     } else {
       setRoomID(room);
-      socket.emit("join", "Matthew", room);
+      socket.emit("join", playerName.username, room);
       setInRoom(true);
     }
   };
@@ -241,6 +243,16 @@ function GameVersus() {
       setGameWin(true);
       handleGameOver();
     });
+
+    socket.once("userLeft", () => {
+      setOpponentDisconnect(true);
+      setTimeout(refreshPage, 5000);
+    })
+
+    socket.once("disconnect", () => {
+      setOpponentDisconnect(true);
+      setTimeout(refreshPage, 5000);
+    })
   }, []);
 
   //This player dies
@@ -333,6 +345,7 @@ function GameVersus() {
               <div className=" text-2xl pt-5">
                 <p>Find as many synonyms as possible!</p>
                 <p>{seconds}</p>
+                {opponentDisconnect ? <p>Opponent has disconnected, returning to join screen in 5 seconds...</p> : <></>}
                 <div>
                   {words.map((word, key) =>
                     CurrentWord(word, guessedWords, guessedWordsOpp)

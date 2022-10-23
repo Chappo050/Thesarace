@@ -28,19 +28,19 @@ const io = require("socket.io")(server, {
 });
 
 //Rooms available
-
+let currentRoom = null;
 io.on("connection", (socket) => {
-  console.log("a user connected");
-
   socket.on("join", function (username, roomName) {
     let rooms = io.sockets.adapter.rooms;
     let room = rooms.get(roomName);
-
+    currentRoom = roomName;
     if (room == undefined) {
       socket.join(roomName);
+      socket.username = username;
       socket.emit("create", "New room created");
     } else if (room.size == 1) {
       socket.join(roomName);
+      socket.username = username;
       socket.emit("update", "Room Joined");
       //sends to all clients in said room
       socket.broadcast
@@ -54,7 +54,6 @@ io.on("connection", (socket) => {
     } else {
       socket.emit("full", "full");
     }
-    console.log(rooms);
   });
 
   socket.on("sendguess", function (data) {
@@ -63,7 +62,6 @@ io.on("connection", (socket) => {
 
   socket.on("writing", function (data, room) {
     socket.broadcast.to(room).emit("writing", data);
-    console.log(data);
   });
 
   socket.on("newWord", function (data, room) {
@@ -78,9 +76,12 @@ io.on("connection", (socket) => {
     socket.broadcast.to(room).emit("gameOver");
   });
 
-  socket.on("userDetails", function ( details, room) {
-    console.log("the data of:......" + details + "to room" + room);
+  socket.on("userDetails", function (details, room) {
     socket.broadcast.to(room).emit("userDetails", details);
+  });
+
+  socket.on("disconnect", () => {
+    socket.broadcast.to(currentRoom).emit("userLeft");
   });
 });
 
