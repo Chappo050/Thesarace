@@ -59,13 +59,14 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-/*
-app.use(helmet());
-app.use(helmet.contentSecurityPolicy({
-connectSrc: ["'self'", "ws:"]
 
-}))
-*/
+app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
+
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
