@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Nav from "../Nav";
 import io from "socket.io-client";
 import { FaHeartbeat } from "react-icons/fa";
-const socket = io("ws://localhost:5000");
+const socket = io("ws://lit-woodland-54631.herokuapp.com");
 
 const api = axios.create({
   baseURL: "/api",
