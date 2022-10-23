@@ -43,8 +43,7 @@ function UserRegister() {
       
         >
           <div className="text-lg">Please register your account below.</div>
-          <div className="p-2 m-2 grid grid-cols-3">
-            <label className="pr-2 flex">Username: </label>
+          <div className="p-2 m-2 ">
             <input
               type="username"
               name="username"
@@ -52,11 +51,10 @@ function UserRegister() {
               value={formValue.username}
               onChange={handleChange}
               required
-              className="text-black p-0.5 col-span-2"
+              className="md:text-lg text-sm  lg:text-xl  text-center w-full"
             />
           </div>
-          <div className="p-2 m-2  grid grid-cols-3">
-            <label className="pr-2 flex">Email: </label>
+          <div className="p-2 m-2 ">
             <input
               type="email"
               name="email"
@@ -64,11 +62,10 @@ function UserRegister() {
               value={formValue.email}
               onChange={handleChange}
               required
-              className="text-black p-0.5 col-span-2"
+              className="md:text-lg text-sm  lg:text-xl  text-center w-full"
             />
           </div>
-          <div className="p-2 m-2  grid grid-cols-3">
-            <label className="pr-2 flex">Password: </label>
+          <div className="p-2 m-2 ">
             <input
               type="password"
               name="password"
@@ -76,7 +73,7 @@ function UserRegister() {
               value={formValue.password}
               onChange={handleChange}
               required
-              className="text-black p-0.5 col-span-2"
+              className="md:text-lg text-sm  lg:text-xl  text-center w-full "
             />
           </div>
           <div className="">

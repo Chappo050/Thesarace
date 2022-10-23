@@ -50,7 +50,7 @@ function UserLogin() {
               value={formValue.username}
               onChange={handleChange}
               required
-              className="text-black p-0.5"
+              className="flex text-black p-0.5 w-full text-center md:text-lg sm:text-md lg:text-xl text-sm"
             />
           </div>
           <div className="p-2 m-2">
@@ -62,7 +62,7 @@ function UserLogin() {
               value={formValue.password}
               onChange={handleChange}
               required
-              className="text-black p-0.5"
+              className="flex text-black p-0.5 w-full text-center md:text-lg sm:text-md lg:text-xl text-sm"
             />
           </div>
           <div className="">

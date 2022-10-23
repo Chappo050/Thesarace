@@ -161,22 +161,22 @@ function GameSolo() {
       <Nav />
       {!gameOver ? (
         <div className="grid grid-cols-3 text-center">
-          <div className="pt-36  text-5xl">
+          <div className="grid grid-cols-1 gap-10 pt-36 md:text-2xl lg:text-4xl text-xl">
             <div>{playerName.username}</div>
             <form
               onSubmit={handleSubmit}
-              className="text-black text-center p-4 text-3xl"
+              className="text-black text-center p-4 md:text-xl lg:text-2xl text-lg"
             >
               <br />
-              <div className="p-2 m-2 text">
+              <div className="mx-5">
                 <input
                   type="guess"
                   name="guess"
-                  placeholder="             Enter your guess here!"
+                  placeholder="Enter your guess here!"
                   value={formValue.guess}
                   onChange={handleChange}
                   required
-                  className="text-black p-0.5"
+                  className=" flex text-black p-0.5 w-full shadow-lg shadow-black text-center md:text-2xl sm:text-xl lg:text-3xl text-xl"
                 />
               </div>
 
@@ -184,17 +184,14 @@ function GameSolo() {
                 <br />
                 <button
                   type="submit"
-                  className="bg-teal-200 p-1 border border-black"
+                  className="bg-teal-200 p-1 mt-10 border border-black text-center md:text-2xl sm:text-xl lg:text-3xl text-xl"
                 >
                   Submit
                 </button>
               </div>
             </form>
             <div>
-              <p className="text-3xl pt-24 font-extrabold">Score: {score}</p>
-              <br />
-              <br />
-              <br />
+              <p className="mt-2 font-extrabold md:text-2xl sm:text-xl lg:text-3xl text-xl">Score: {score}</p>
               {!onCooldown ? <NextWordButton fetchWord={fetchWord} /> : <></>}
             </div>
           </div>
@@ -204,18 +201,16 @@ function GameSolo() {
             <div>
               {words.map((word, key) => CurrentWord(word, guessedWords))}
             </div>
-            <br />
-            <br />
-            <br />
+
           </div>
           <i />
         </div>
       ) : (
         <div className="grid grid-cols-1 text-center text-4xl">
-          <div className=" font-extrabold underline underline-offset-2 pt-16">
+          <div className=" font-extrabold underline underline-offset-2 pt-10">
             Final Score is: {score}
           </div>
-          <button className="bg-teal-200 p-1 border border-black m-16 hover:bg-teal-400" onClick={refreshPage}>New Game</button>
+          <button className="bg-teal-200 p-1 border border-black m-16 hover:bg-teal-400 " onClick={refreshPage}>New Game</button>
         </div>
       )}
     </div>
@@ -226,7 +221,7 @@ const NextWordButton = ({ fetchWord }: any) => {
   return (
     <button
       onClick={() => fetchWord()}
-      className="bg-teal-200 p-1 border border-black text-2xl"
+      className="bg-teal-200 p-1 border border-black md:text-2xl sm:text-xl lg:text-3xl text-xl"
     >
       Next Word
     </button>
@@ -236,7 +231,7 @@ const CurrentWord = (word: Word, guessedWords: String[]) => {
   return (
     <div>
  
- <div className="text-8xl">{word.word}</div>
+ <div className="md:text-5xl sm:text-4xl lg:text-6xl text-2xl">{word.word}</div>
  
       <div className="grid grid-cols-3 gap-3 pt-10 text-blue-800">
         {guessedWords.map((synonym, key) => (
@@ -247,17 +242,4 @@ const CurrentWord = (word: Word, guessedWords: String[]) => {
   );
 };
 
-//only needewd for testing
-const wordliststuff = (word: Word, guessedWords: String[]) => {
-  return (
-    <div>
-  <div className="text-8xl">{word.word}</div>
-  <div className="grid grid-cols-3 gap-3 pt-10">
-    {word.synonyms.map((synonym, key) => (
-      <i>{synonym}</i>
-    ))}
-  </div>
-  </div>
-  )
-}
 export default GameSolo;

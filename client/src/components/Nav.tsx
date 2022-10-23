@@ -54,7 +54,7 @@ const DropdownMenu: React.FC<Props> = ({ options, links, title }) => {
         leaveTo="transform opacity-0 scale-95"
       >
  
-        <Menu.Items className="absolute right-[42%] z-10 mt-2 w-36 origin-top-right text-center rounded-md bg-teal-100 shadow-lg ring-1 ring-teal-400 ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute lg:right-[37%] md:right-[25%] sm:right-[20%] z-10 mt-2 w-36 origin-top-right text-center rounded-md bg-teal-100 shadow-lg ring-1 ring-teal-400 ring-opacity-5 focus:outline-none">
          
           <div className="py-1">
             <>

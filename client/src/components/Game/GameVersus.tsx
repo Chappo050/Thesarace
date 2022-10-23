@@ -139,7 +139,6 @@ function GameVersus() {
       .get("/game/user")
       .then((response) => {
         setPlayerName(response.data);
-        console.log(response.data);
       })
       .catch((err) => {
         console.error(err);
@@ -200,7 +199,6 @@ function GameVersus() {
 
   useEffect(() => {
     socket.on("writing", (data) => {
-      console.log("Opponent is writing: " + data);
       setformValueOpp({ guess: data });
     });
 
@@ -213,7 +211,6 @@ function GameVersus() {
     });
 
     socket.on("full", (arg1) => {
-      console.log("data recieved: " + arg1);
 
       refreshPage();
       alert("Room is full, please try another room");
@@ -229,7 +226,6 @@ function GameVersus() {
     socket.on("correctGuess", (word) => {
       setPlayerHealth((playerHealth) => playerHealth - 1);
       setGuessedWordsOpp((guessedWordsOpp) => [word, ...guessedWordsOpp]);
-      console.log("Playres health is now" + playerHealth);
     });
 
     //other player lost
@@ -293,37 +289,37 @@ function GameVersus() {
               gameOver={gameOver}
             />
           ) : (
-            <div className="grid grid-cols-3 text-center">
-              <div className=" left-5 pt-72  text-4xl">
-                <div className="grid grid-cols-1 gap-10 text-4xl">
+            <div className="grid grid-cols-3 text-center h-screen ">
+              <div className=" left-5 pt-72  text-4xl ">
+                <div className="grid grid-cols-1 gap-10 text-4xl ">
                   {playerName.guest ? (
-                    <div className="italic text-3xl">
+                    <div className="italic md:text-2xl lg:text-3xl text-xl">
                       {" "}
                       {playerName.username}{" "}
                     </div>
                   ) : (
-                    <div className="underline underline-offset-2"> {playerName.username} </div>
+                    <div className="underline underline-offset-2 md:text-2xl lg:text-3xl text-xll"> {playerName.username} </div>
                   )}
                   <form
                     onSubmit={handleSubmit}
-                    className="text-black text-center p-4 text-3xl"
+                    className="text-black text-center text-3xl"
                   >
                     <br />
-                    <div className="p-2 m-2 text">
+                    <div className="mx-5 ">
                       <input
                         type="guess"
                         maxLength={20}
                         name="guess"
-                        placeholder="             Enter your guess here!"
+                        placeholder="Type here!"
                         value={formValue.guess}
                         onChange={handleChange}
                         required
-                        className="text-black p-0.5"
+                        className=" flex text-black p-0.5 w-full shadow-lg shadow-black text-center md:text-2xl sm:text-xl lg:text-3xl text-xl"
                       />
 
                       <button
                         type="submit"
-                        className="bg-teal-200 p-1 border border-black"
+                        className="bg-teal-200 p-1 mt-5 border border-black text-center md:text-xl sm:text-lg lg:text-2xl text-xl"
                       >
                         Submit
                       </button>
@@ -341,7 +337,7 @@ function GameVersus() {
                   </div>
                 </div>
               </div>
-              <div className=" text-2xl pt-5">
+              <div className=" text-2xl pt-5 border-l-2 border-r-2 border-solid border-black ">
                 <p>Find as many synonyms as possible!</p>
                 <p>{seconds}</p>
                 {opponentDisconnect ? <p>Opponent has disconnected, returning to join screen in 5 seconds...</p> : <></>}
@@ -354,7 +350,7 @@ function GameVersus() {
                 <br />
                 <br />
               </div>
-              <div className=" right-5 pt-72  text-4xl ">
+              <div className=" right-5 pt-72  text-4xl  ">
                 {OpponentsSide(formValueOpp.guess, playerNameOpp)}
                 {playerHealth > 0 ? (
                   <PlayerHealth
@@ -389,7 +385,7 @@ const PlayerHealth = ({ health, Heart }: any) => {
   const healthArray = Array.from(Array(health));
 
   return (
-    <div className="grid grid-cols-3 p-10 pl-36">
+    <div className="grid grid-cols-3 justify-items-center text-red-500 animate-pulse sm:text-lg md:text-xl lg:text-4xl text-xl mx-10">
       {healthArray.map(() => Heart)}
     </div>
   );
@@ -399,18 +395,18 @@ const OpponentsSide = (word: any, player: PlayerDetails) => {
   return (
     <div className="grid grid-cols-1 gap-10">
       {player.guest ? (
-        <div className="italic text-3xl no-underline"> {player.username} </div>
+        <div className="italic  no-underline md:text-2xl sm:text-xl lg:text-3xl text-xl pt-10"> {player.username} </div>
       ) : (
-        <div className="underline"> {player.username} </div>
+        <div className="underline md:text-2xl sm:text-xl lg:text-3xl text-xl mb-8"> {player.username} </div>
       )}
-      <div className=" p-2 m-2">
+      <div className="mx-5 mb-24 ">
         <input
           type="opp"
           name="opp"
           placeholder="....."
           value={word}
           disabled={true}
-          className="text-black p-0.5 text-center"
+          className="flex text-black p-0.5 w-full text-center md:text-2xl sm:text-xl lg:text-3xl text-xl"
         />
       </div>
     </div>
@@ -444,6 +440,7 @@ const JoinScreen = ({ joinFunc , gameReady, inRoom }: any) => {
   );
 };
 
+//Displays the current words and their guessed words for both players
 const CurrentWord = (
   word: Word,
   guessedWords: String[],
@@ -451,15 +448,15 @@ const CurrentWord = (
 ) => {
   return (
     <div>
-      <div className="text-8xl">{word.word}</div>
+      <div className="lg:text-6xl md:text-4xl m-10 ">{word.word}</div>
 
-      <div className="grid grid-cols-2 gap-3 pt-10">
-        <div className="grid grid-cols-1 gap-3 pt-10 text-blue-700">
+      <div className="grid grid-cols-2 gap-3 pt-10  ">
+        <div className="grid grid-cols-1 gap-3 pt-10 text-blue-700 border-blue-700 border border-opacity-50 mx-2 md:text-2xl lg:text-4xl ">
           {guessedWords.map((synonym, key) => (
             <i>{synonym}</i>
           ))}
         </div>
-        <div className="grid grid-cols-1 gap-3 pt-10 text-red-700">
+        <div className="grid grid-cols-1 gap-3 pt-10 text-red-700 border-red-700 border border-opacity-50 mx-2">
           {guessedWordsOpp.map((synonym, key) => (
             <i>{synonym}</i>
           ))}

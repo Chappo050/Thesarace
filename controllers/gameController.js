@@ -48,7 +48,6 @@ exports.newGame = (req, res, next) => {
       return next(err);
     }
     if (word) {
-      console.log(word);
       res.status(200).json(word);
     } else {
       res.status(200).json({ message: "No word found" });
@@ -60,11 +59,9 @@ exports.newGame = (req, res, next) => {
 exports.userDetails = (req, res, next) => {
   try {
     const username = req.user.username
-    console.log(req.user);
     res.status(200).json({username: username, guest: false})
   } catch (error) {
     const randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
-    console.log(randomName);
     res.status(200).json({username: randomName, guest: true})
   }
 
