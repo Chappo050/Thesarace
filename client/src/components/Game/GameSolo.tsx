@@ -15,6 +15,11 @@ interface Word {
   synonyms: [String];
 }
 
+interface PlayerDetails {
+  username: String;
+  guest: boolean;
+}
+
 const defaultWords: Word[] = [];
 
 function GameSolo() {
@@ -22,6 +27,11 @@ function GameSolo() {
 
   const [words, setWords]: [Word[], (words: Word[]) => void] =
     useState(defaultWords);
+
+    const [playerName, setPlayerName] = useState<PlayerDetails>({
+      username: "",
+      guest: true,
+    });
 
   const [wordCount, setWordCount] = useState(0);
 
@@ -61,6 +71,7 @@ function GameSolo() {
   }, []);
 
   useEffect(() => {
+    fetchUserDetails()
     api
       .get("/game/new")
       .then((response) => {
@@ -94,6 +105,17 @@ function GameSolo() {
           console.error(err);
         });
     }
+  };
+
+  const fetchUserDetails = async () => {
+    api
+      .get("/game/user")
+      .then((response) => {
+        setPlayerName(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const refreshPage = () => {
@@ -140,7 +162,7 @@ function GameSolo() {
       {!gameOver ? (
         <div className="grid grid-cols-3 text-center">
           <div className="pt-36  text-5xl">
-            <div>Player Name</div>
+            <div>{playerName.username}</div>
             <form
               onSubmit={handleSubmit}
               className="text-black text-center p-4 text-3xl"

@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import {AiOutlineUser} from 'react-icons/ai';
+import {IoLogoGameControllerA} from 'react-icons/io';
 
 type Props = {
   title: string;
@@ -11,13 +12,15 @@ type Props = {
 const Nav = () => {
   return (
     <nav className="sticky top-0 w-auto bg-teal-300 text-black border-b-2 border-teal-400">
-      <div className=" grid grid-cols-2 text-xl text-custom-blue font-semibold">
+      <div className=" grid grid-cols-3 text-xl text-custom-blue font-semibold">
 
         <DropdownMenu
         title={'User'}
           options={["Login", "Register", "Sign Out"]}
           links={["/user/login", "/user/register", "/user/logout"]}
         />
+
+        <a href="/" className="relative inline-block py-2 text-teal-800 text-center items-center object-center italic">ThesauRACE</a>
         <DropdownMenu
          title={'Games'}
           options={["Solo", "Versus"]}
@@ -37,7 +40,7 @@ const DropdownMenu: React.FC<Props> = ({ options, links, title }) => {
     <Menu as="div" className="relative inline-block py-1 text-black text-center items-center object-center">
       <div>
         <Menu.Button className="inline-flex w-1/10 justify-center rounded-md  bg-teal-100 px-4 py-2  hover:bg-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400">
-          {<AiOutlineUser/>}
+         {title === "User" ? <AiOutlineUser/> : <IoLogoGameControllerA/>} 
         </Menu.Button>
       </div>
 
@@ -51,9 +54,9 @@ const DropdownMenu: React.FC<Props> = ({ options, links, title }) => {
         leaveTo="transform opacity-0 scale-95"
       >
  
-        <Menu.Items className="absolute right-[43%] z-10 mt-2 w-36 origin-top-right text-center rounded-md bg-teal-100 shadow-lg ring-1 ring-teal-400 ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-[42%] z-10 mt-2 w-36 origin-top-right text-center rounded-md bg-teal-100 shadow-lg ring-1 ring-teal-400 ring-opacity-5 focus:outline-none">
          
-          <div className="py-1 ">
+          <div className="py-1">
             <>
           {options.map(function (option, i) {return DropdownMenuItem(option, links[i])})}       
             </>

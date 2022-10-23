@@ -1,9 +1,8 @@
 import axios from "axios";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Nav from "../Nav";
 import io from "socket.io-client";
 import { FaHeartbeat } from "react-icons/fa";
-import User from "../User/User";
 const socket = io("ws://localhost:5000");
 
 const api = axios.create({
@@ -355,7 +354,7 @@ function GameVersus() {
                 <br />
                 <br />
               </div>
-              <div className="absolute right-5 pt-72  text-4xl ">
+              <div className=" right-5 pt-72  text-4xl ">
                 {OpponentsSide(formValueOpp.guess, playerNameOpp)}
                 {playerHealth > 0 ? (
                   <PlayerHealth
