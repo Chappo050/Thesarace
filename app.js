@@ -66,7 +66,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(compression()); //Compress all routes
 app.use(express.static(path.join(__dirname, "public")));
-// Production app.use(express.static(path.join(__dirname, "client", "build")));
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 
 //ROUTES
@@ -74,11 +74,11 @@ app.use("/api/user", userRouter);
 app.use("/api/game", gameRouter);
 app.use("/api", indexRouter);
 
-/* catchall for production
+
 app.get("/*", function (req, res) {
   res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
-*/
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
