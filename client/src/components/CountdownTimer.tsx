@@ -1,6 +1,6 @@
 import { useCountdown } from "../hooks/useCountdown";
 import DateTimeDisplay from "../components/DateTimeDisplay";
-import React, { forwardRef, useRef, useState } from "react";
+import React, { forwardRef} from "react";
 
 const CountdownTimer = forwardRef(({ time, timerRef, start }: any) => {
   const [days, hours, minutes, seconds] = useCountdown(time, start);

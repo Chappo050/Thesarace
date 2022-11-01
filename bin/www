@@ -30,10 +30,12 @@ const io = require("socket.io")(server, {
 //Rooms available
 let currentRoom = null;
 io.on("connection", (socket) => {
+  console.log(socket);
   socket.on("join", function (username, roomName) {
     let rooms = io.sockets.adapter.rooms;
     let room = rooms.get(roomName);
     currentRoom = roomName;
+    console.log(rooms);
     if (room == undefined) {
       socket.join(roomName);
       socket.username = username;
